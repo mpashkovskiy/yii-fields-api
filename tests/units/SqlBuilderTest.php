@@ -17,3 +17,4 @@
   echo $builder->insertField($field) . PHP_EOL;
   echo $builder->getFieldId($field) . PHP_EOL;
   echo $builder->insertAllowedValue(1, 'Audi') . PHP_EOL;
+  echo $builder->selectFieldsFor(NULL, array("step1")) . PHP_EOL;

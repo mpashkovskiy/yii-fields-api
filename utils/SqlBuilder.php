@@ -6,6 +6,8 @@ class SqlBuilder {
   const TYPE_TABLE          = 'field_type';
   const ALLOWED_VALUE_TABLE = 'field_allowed_value';
   
+  const VALUE_NOT_SET = 'Значение не задано';
+  
   function insertField($field) {
     $sql = sprintf(
       'INSERT INTO %s(group_id, weight, type, name, label) VALUES("%s", %d, "%s", "%s", "%s")',
@@ -38,6 +40,26 @@ class SqlBuilder {
       $field_type_id,
       $value
     );
+    return $sql;
+  }
+  
+  function selectFieldsFor($object_id, $group_ids) {
+    if ($object_id == NULL) {
+      $sql = sprintf(
+        'SELECT *, "%s" as value FROM %s ft WHERE ft.group_id IN("%s")',
+        SqlBuilder::VALUE_NOT_SET,
+        SqlBuilder::TYPE_TABLE,
+        implode('", "', $group_ids)
+      );
+    } else {
+      $sql = sprintf(
+        'SELECT * FROM %s ft, %s fv WHERE ft.group_id IN("%s") AND ft.id = fv.field_type_id AND fv.object_id = "%s"',
+        SqlBuilder::TYPE_TABLE,
+        SqlBuilder::VALUE_TABLE,
+        implode('", "', $group_ids),
+        $object_id
+      );
+    }
     return $sql;
   }
   

@@ -4,8 +4,8 @@ class FieldsDao extends CommonDao {
 
   private $sql_builder;
 
-  function __constructor() {
-    $sql_builder = new SqlBuilder();
+  function FieldsDao() {
+    $this->sql_builder = new SqlBuilder();
   }
 
   /**
@@ -20,31 +20,35 @@ class FieldsDao extends CommonDao {
    */
   function saveFields($fields) {
     foreach ($fields as $field) {
-      $sql = $sql_builder->insertField($field);
+      $sql = $this->sql_builder->insertField($field);
       $this->execute($sql);
       
-      $sql = $sql_builder->getFieldId($field);
+      $sql = $this->sql_builder->getFieldId($field);
       $field_type_id = $this->getScalar($sql);
       
-      if (is_set($field[Field::VALUE])) {
-        foreach ($field[Field::VALUE] as $value) {
-          $sql = $sql_builder->insertAllowedValue($field_type_id, $value);
+      if (isset($field[Field::VALUES])) {
+        foreach ($field[Field::VALUES] as $value) {
+          $sql = $this->sql_builder->insertAllowedValue($field_type_id, $value);
           $this->execute($sql);
         }
       }
     }
   }
   
-  function getFieldsFor($a_object_id, $a_category_ids) {
+  function getFieldsFor($a_object_id, $a_group_ids) {
     $object_id = $a_object_id;
-    $category_ids = $a_category_ids;
-    if (!is_array($category_ids)) {
-      $category_ids = array($category_ids);
+    $group_ids = $a_group_ids;
+    if (!is_array($group_ids)) {
+      $group_ids = array($group_ids);
     }
     
-    //$dataReader = $this->getReader($sql);
-    //while(($row = $dataReader->read()) !== false) {
-    //}
+    $field_object = new FieldsObject();
+    $sql = $this->sql_builder->selectFieldsFor($object_id, $group_ids);
+    $dataReader = $this->getReader($sql);
+    while(($row = $dataReader->read()) !== false) {
+      $field_object->addField($row);
+    }
+    return $field_object;
   }
   
   function saveFieldsValuesFor($a_object_id, $a_fields_values) {
