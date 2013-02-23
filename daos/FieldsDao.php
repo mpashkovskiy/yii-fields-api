@@ -18,40 +18,46 @@ class FieldsDao extends CommonDao {
     ]
    
    */
-  function saveFields($fields) {
-    foreach ($fields as $field) {
-      $sql = $this->sql_builder->insertField($field);
-      $this->execute($sql);
-      
-      $sql = $this->sql_builder->getFieldId($field);
-      $field_type_id = $this->getScalar($sql);
-      
-      if (isset($field[Field::VALUES])) {
-        foreach ($field[Field::VALUES] as $value) {
-          $sql = $this->sql_builder->insertAllowedValue($field_type_id, $value);
-          $this->execute($sql);
-        }
+  function saveField($field) {
+    $sql = $this->sql_builder->insertField($field);
+    $this->execute($sql);
+    
+    $sql = $this->sql_builder->getFieldId($field);
+    $field_type_id = $this->getScalar($sql);
+    
+    if (isset($field[Field::VALUES])) {
+      foreach ($field[Field::VALUES] as $value) {
+        $sql = $this->sql_builder->insertAllowedValue($field_type_id, $value);
+        $this->execute($sql);
       }
     }
+    
+    return $this->getField(null, $field[Field::NAME]);
   }
   
-  function getFieldsFor($a_object_id, $a_group_ids) {
-    $object_id = $a_object_id;
+  function getField($a_object_id, $a_field_name) {    
+    $sql = $this->sql_builder->selectField($a_object_id, $a_field_name);    
+    $row = $this->getFirst($sql);
+    if ($row[Field::TYPE] == Field::SELECT_TYPE) {
+      $sql = $this->sql_builder->selectAllowedValues($row['id']);
+      $row[Field::VALUES] = $this->getColumn($sql);
+    }
+    return new Field($row);
+  }
+  
+  function getFields($a_object_id, $a_group_ids) {
     $group_ids = $a_group_ids;
     if (!is_array($group_ids)) {
       $group_ids = array($group_ids);
     }
     
     $field_object = new FieldsObject();
-    $sql = $this->sql_builder->selectFieldsFor($object_id, $group_ids);
+    $sql = $this->sql_builder->selectFields($a_object_id, $group_ids);
     $dataReader = $this->getReader($sql);
     while(($row = $dataReader->read()) !== false) {
       $field_object->addField($row);
     }
     return $field_object;
-  }
-  
-  function saveFieldsValuesFor($a_object_id, $a_fields_values) {
   }
 
 }

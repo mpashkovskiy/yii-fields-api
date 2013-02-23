@@ -10,4 +10,22 @@ class Field {
   const VALUE  = 'value';
   const VALUES = 'values';
   
+  const SELECT_TYPE = 'select';
+  
+  const VALUE_NOT_SET = 'Значение не задано';
+  
+  private $values;
+  
+  function Field($a_array) {
+    $this->values = $a_array;
+  }
+  
+  function get($key) {
+    return $this->values[$key];
+  }
+  
+  function set($key, $value) {
+    $this->values[$key] = $value;
+  }
+  
 }
