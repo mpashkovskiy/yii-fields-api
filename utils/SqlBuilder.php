@@ -39,51 +39,27 @@ class SqlBuilder {
   }
   
   function selectField($object_id, $a_field_name) {
-    if ($object_id == NULL) {
-      $sql = sprintf(
-        'SELECT *, "%s" as value
-         FROM %s ft
-         WHERE name = "%s"',
-        Field::VALUE_NOT_SET,
-        SqlBuilder::TYPE_TABLE,
-        $a_field_name
-      );
-    } else {
-      $sql = sprintf(
-        'SELECT *
-         FROM %s ft, %s fv
-         WHERE ft.name = "%s" AND ft.id = fv.field_type_id AND fv.object_id = "%s"',
-        SqlBuilder::TYPE_TABLE,
-        SqlBuilder::VALUE_TABLE,
-        $a_field_name,
-        $object_id
-      );
-    }
-    return $sql;
+    return sprintf(
+      'SELECT *, ft.id as ft_id
+       FROM %s ft, %s fv
+       WHERE ft.name = "%s" AND ft.id = fv.field_type_id AND fv.object_id = "%s"',
+      SqlBuilder::TYPE_TABLE,
+      SqlBuilder::VALUE_TABLE,
+      $a_field_name,
+      $object_id
+    );
   }
   
   function selectFields($object_id, $group_ids) {
-    if ($object_id == NULL) {
-      $sql = sprintf(
-        'SELECT *, "%s" as value
-         FROM %s ft
-         WHERE ft.group_id IN("%s")',
-        Field::VALUE_NOT_SET,
-        SqlBuilder::TYPE_TABLE,
-        implode('", "', $group_ids)
-      );
-    } else {
-      $sql = sprintf(
-        'SELECT *
-         FROM %s ft, %s fv
-         WHERE ft.group_id IN("%s") AND ft.id = fv.field_type_id AND fv.object_id = "%s"',
-        SqlBuilder::TYPE_TABLE,
-        SqlBuilder::VALUE_TABLE,
-        implode('", "', $group_ids),
-        $object_id
-      );
-    }
-    return $sql;
+    return sprintf(
+      'SELECT *, ft.id as ft_id
+       FROM %s ft, %s fv
+       WHERE ft.group_id IN("%s") AND ft.id = fv.field_type_id AND fv.object_id = "%s"',
+      SqlBuilder::TYPE_TABLE,
+      SqlBuilder::VALUE_TABLE,
+      implode('", "', $group_ids),
+      $object_id
+    );
   }
   
   function selectAllowedValues($a_field_id) {
@@ -91,6 +67,36 @@ class SqlBuilder {
       'SELECT value FROM %s WHERE field_type_id = %d ORDER BY value',
       SqlBuilder::ALLOWED_VALUE_TABLE,
       $a_field_id
+    );
+  }
+  
+  function selectFieldId($a_field_name) {
+    return sprintf(
+      'SELECT id FROM %s WHERE name = "%s"',
+      SqlBuilder::TYPE_TABLE,
+      $a_field_name
+    );
+  }
+  
+  function insertEmptyValues($a_object_id, $a_group_id) {
+    return sprintf(
+      'INSERT INTO %s(object_id, field_type_id)
+       SELECT %d, id
+       FROM %s
+       WHERE group_id = "%s"',
+      SqlBuilder::VALUE_TABLE,
+      $a_object_id,
+      SqlBuilder::TYPE_TABLE,
+      $a_group_id
+    );
+  }
+  
+  function insertFieldValue($a_object_id, $a_field_id, $a_value) {
+    return sprintf(
+      'UPDATE %s SET value = "%s" WHERE object_id = "%s" AND field_type_id = %d',
+      SqlBuilder::VALUE_TABLE,
+      $a_value,
+      $a_object_id, $a_field_id
     );
   }
   

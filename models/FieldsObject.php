@@ -3,15 +3,21 @@
 class FieldsObject {
 
   private $errors;
-  
   private $data;
+  private $values;
+  
+  public $object_id;
   
   function __construct() {
     $this->data = array();
     $this->errors = array();
+    $this->values = array();
   }
   
   function addField($data) {
+    if ($data[Field::VALUE] == NULL) {
+      $data[Field::VALUE] = Field::VALUE_NOT_SET;
+    }
     $this->data[$data[Field::NAME]] = $data;
   }
   
@@ -42,6 +48,34 @@ class FieldsObject {
 
   function getValidators($attribute=null) {
     return array();
+  }
+
+  function __set($name, $value) {
+    if ($name == 'attributes') {
+      if (!is_array($value))
+        return;
+      
+      $fields = array_keys($this->data);
+      foreach ($value as $key => $value) {
+        if (!in_array($key, $fields))
+          continue;
+        
+        $this->values[$key] = $value;
+      }
+    }
+  }
+  
+  function save() {
+    $sqlBuilder = new SqlBuilder();
+    $fieldsDao = new FieldsDao();
+    foreach ($this->values as $key => $value) {
+      if (trim($value) == '' || $value == Field::VALUE_NOT_SET)
+        continue;
+      
+      $sql = $sqlBuilder->insertFieldValue($this->object_id, $this->data[$key]['id'], $value);
+      //var_dump($sql);
+      $fieldsDao->execute($sql);
+    }
   }
 
 }
