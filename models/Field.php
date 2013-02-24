@@ -2,13 +2,14 @@
 
 class Field {
 
-  const GROUP  = 'group_id';
-  const WEIGHT = 'weight';
-  const TYPE   = 'type';
-  const NAME   = 'name';
-  const LABEL  = 'label';
-  const VALUE  = 'value';
-  const VALUES = 'values';
+  const GROUP       = 'group_id';
+  const WEIGHT      = 'weight';
+  const TYPE        = 'type';
+  const NAME        = 'name';
+  const LABEL       = 'label';
+  const VALUE       = 'value';
+  const VALUES      = 'values';
+  const IS_REQUIRED = 'is_required';
   
   const SELECT_TYPE = 'select';
   

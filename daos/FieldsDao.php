@@ -9,14 +9,12 @@ class FieldsDao extends CommonDao {
   }
 
   /**
-   
     $fields - array of associative arrays
    
     $fields = [
       {group_id: 'group1', weight: 1, type: 'select', name: 'Марка', values: ['Audi', 'BMW', ...]},
       {...}
     ]
-   
    */
   function saveField($field) {
     $sql = $this->sql_builder->insertField($field);
