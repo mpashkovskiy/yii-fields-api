@@ -73,7 +73,6 @@ class FieldsObject {
         continue;
       
       $sql = $sqlBuilder->insertFieldValue($this->object_id, $this->data[$key]['id'], $value);
-      //var_dump($sql);
       $fieldsDao->execute($sql);
     }
   }

@@ -30,7 +30,7 @@ class FieldsDao extends CommonDao {
       }
     }
     
-    return $this->getField(null, $field[Field::NAME]);
+    return $this->getField(NULL, $field[Field::NAME]);
   }
   
   function initFields($a_object_id, $a_group_name) {
@@ -39,11 +39,16 @@ class FieldsDao extends CommonDao {
   }
   
   function getField($a_object_id, $a_field_name) {
-    $sql = $this->sql_builder->selectField($a_object_id, $a_field_name);
-    $row = $this->getFirst($sql);
-    unset($row['id']);
-    $row['id'] = $row['ft_id'];
-    unset($row['ft_id']);
+    if ($a_object_id == NULL) {
+      $sql = $this->sql_builder->selectField($a_field_name);
+      $row = $this->getFirst($sql);      
+    } else {
+      $sql = $this->sql_builder->selectFieldWithValues($a_object_id, $a_field_name);
+      $row = $this->getFirst($sql);
+      unset($row['id']);
+      $row['id'] = $row['ft_id'];
+      unset($row['ft_id']);
+    }
     if ($row[Field::TYPE] == Field::SELECT_TYPE) {
       $sql = $this->sql_builder->selectAllowedValues($row['id']);
       $row[Field::VALUES] = $this->getColumn($sql);

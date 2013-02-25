@@ -29,6 +29,14 @@ class SqlBuilder {
     );
   }
   
+  /*function selectFieldId($a_field_name) {
+    return sprintf(
+      'SELECT id FROM %s WHERE name = "%s"',
+      SqlBuilder::TYPE_TABLE,
+      $a_field_name
+    );
+  }*/
+  
   function insertAllowedValue($field_type_id, $value) {
     return sprintf(
       'INSERT INTO %s(field_type_id, value) VALUES(%s, "%s")', 
@@ -38,7 +46,15 @@ class SqlBuilder {
     );
   }
   
-  function selectField($object_id, $a_field_name) {
+  function selectField($a_field_name) {
+    return sprintf(
+      'SELECT * FROM %s WHERE name = "%s"',
+      SqlBuilder::TYPE_TABLE,
+      $a_field_name
+    );
+  }
+  
+  function selectFieldWithValues($object_id, $a_field_name) {
     return sprintf(
       'SELECT *, ft.id as ft_id
        FROM %s ft, %s fv
@@ -67,14 +83,6 @@ class SqlBuilder {
       'SELECT value FROM %s WHERE field_type_id = %d ORDER BY value',
       SqlBuilder::ALLOWED_VALUE_TABLE,
       $a_field_id
-    );
-  }
-  
-  function selectFieldId($a_field_name) {
-    return sprintf(
-      'SELECT id FROM %s WHERE name = "%s"',
-      SqlBuilder::TYPE_TABLE,
-      $a_field_name
     );
   }
   
