@@ -66,7 +66,19 @@ class SqlBuilder {
     );
   }
   
-  function selectFields($object_id, $group_ids) {
+  function selectFieldsByNames($object_id, $fields_ids) {
+    return sprintf(
+      'SELECT *, ft.id as ft_id
+       FROM %s ft, %s fv
+       WHERE ft.name IN("%s") AND ft.id = fv.field_type_id AND fv.object_id = "%s"',
+      SqlBuilder::TYPE_TABLE,
+      SqlBuilder::VALUE_TABLE,
+      implode('", "', $fields_ids),
+      $object_id
+    );
+  }
+  
+  function selectFieldsByGroups($object_id, $group_ids) {
     return sprintf(
       'SELECT *, ft.id as ft_id
        FROM %s ft, %s fv
@@ -86,16 +98,14 @@ class SqlBuilder {
     );
   }
   
-  function insertEmptyValues($a_object_id, $a_group_id) {
+  function insertEmptyValues($a_object_id) {
     return sprintf(
       'INSERT INTO %s(object_id, field_type_id)
        SELECT %d, id
-       FROM %s
-       WHERE group_id = "%s"',
+       FROM %s',
       SqlBuilder::VALUE_TABLE,
       $a_object_id,
-      SqlBuilder::TYPE_TABLE,
-      $a_group_id
+      SqlBuilder::TYPE_TABLE
     );
   }
   

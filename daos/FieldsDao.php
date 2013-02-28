@@ -33,15 +33,15 @@ class FieldsDao extends CommonDao {
     return $this->getField(NULL, $field[Field::NAME]);
   }
   
-  function initFields($a_object_id, $a_group_name) {
-    $sql = $this->sql_builder->insertEmptyValues($a_object_id, $a_group_name);
+  function initFields($a_object_id) {
+    $sql = $this->sql_builder->insertEmptyValues($a_object_id);
     $this->execute($sql);
   }
   
   function getField($a_object_id, $a_field_name) {
     if ($a_object_id == NULL) {
       $sql = $this->sql_builder->selectField($a_field_name);
-      $row = $this->getFirst($sql);      
+      $row = $this->getFirst($sql);
     } else {
       $sql = $this->sql_builder->selectFieldWithValues($a_object_id, $a_field_name);
       $row = $this->getFirst($sql);
@@ -56,17 +56,34 @@ class FieldsDao extends CommonDao {
     return new Field($row);
   }
   
-  function getFields($a_object_id, $a_group_ids) {
+  function getFieldsByNames($a_object_id, $a_names) {
+    $names = $a_names;
+    if (!is_array($names)) {
+      $names = array($names);
+    }
+    
+    $field_object = new FieldsObject();
+    $sql = $this->sql_builder->selectFieldsByNames($a_object_id, $names);
+    $dataReader = $this->getReader($sql);
+    while(($row = $dataReader->read()) !== false) {
+      unset($row['id']);
+      $row['id'] = $row['ft_id'];
+      unset($row['ft_id']);
+      $field_object->addField($row);
+    }
+    return $field_object;
+  }
+  
+  function getFieldsByGroups($a_object_id, $a_group_ids) {
     $group_ids = $a_group_ids;
     if (!is_array($group_ids)) {
       $group_ids = array($group_ids);
     }
     
     $field_object = new FieldsObject();
-    $sql = $this->sql_builder->selectFields($a_object_id, $group_ids);
+    $sql = $this->sql_builder->selectFieldsByGroups($a_object_id, $group_ids);
     $dataReader = $this->getReader($sql);
     while(($row = $dataReader->read()) !== false) {
-      //var_dump($row);
       unset($row['id']);
       $row['id'] = $row['ft_id'];
       unset($row['ft_id']);
