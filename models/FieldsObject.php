@@ -21,6 +21,9 @@ class FieldsObject {
     $this->data[$data[Field::NAME]] = $data;
   }
   
+  function getAttribute($name) {
+    return $this->data[$name];
+  }
   
   function getAttributes() {
     return $this->data;
@@ -51,17 +54,19 @@ class FieldsObject {
   }
 
   function __set($name, $value) {
+    $fields = array_keys($this->data);
     if ($name == 'attributes') {
       if (!is_array($value))
         return;
       
-      $fields = array_keys($this->data);
       foreach ($value as $key => $value) {
         if (!in_array($key, $fields))
           continue;
         
         $this->values[$key] = $value;
       }
+    } else if (in_array($name, $fields)) {
+      $this->values[$name] = $value;
     }
   }
   

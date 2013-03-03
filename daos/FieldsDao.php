@@ -81,6 +81,7 @@ class FieldsDao extends CommonDao {
     }
     
     $field_object = new FieldsObject();
+    $field_object->object_id = $a_object_id;
     $sql = $this->sql_builder->selectFieldsByGroups($a_object_id, $group_ids);
     $dataReader = $this->getReader($sql);
     while(($row = $dataReader->read()) !== false) {
