@@ -56,6 +56,20 @@ class FieldsDao extends CommonDao {
     return new Field($row);
   }
   
+  function getAllFields($a_object_id) {
+    $field_object = new FieldsObject();
+    $field_object->object_id = $a_object_id;
+    $sql = $this->sql_builder->selectAllFields($a_object_id);
+    $dataReader = $this->getReader($sql);
+    while(($row = $dataReader->read()) !== false) {
+      unset($row['id']);
+      $row['id'] = $row['ft_id'];
+      unset($row['ft_id']);
+      $field_object->addField($row);
+    }
+    return $field_object;
+  }
+  
   function getFieldsByNames($a_object_id, $a_names) {
     $names = $a_names;
     if (!is_array($names)) {
@@ -63,6 +77,7 @@ class FieldsDao extends CommonDao {
     }
     
     $field_object = new FieldsObject();
+    $field_object->object_id = $a_object_id;
     $sql = $this->sql_builder->selectFieldsByNames($a_object_id, $names);
     $dataReader = $this->getReader($sql);
     while(($row = $dataReader->read()) !== false) {

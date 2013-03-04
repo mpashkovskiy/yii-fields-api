@@ -7,6 +7,8 @@ class Field {
   const TYPE        = 'type';
   const NAME        = 'name';
   const LABEL       = 'label';
+  const PREFIX      = 'prefix';
+  const SUFFIX      = 'suffix';
   const VALUE       = 'value';
   const VALUES      = 'values';
   const IS_REQUIRED = 'is_required';

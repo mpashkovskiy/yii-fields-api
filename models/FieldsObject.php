@@ -21,6 +21,29 @@ class FieldsObject {
     $this->data[$data[Field::NAME]] = $data;
   }
   
+  function getGroupNames() {
+    $groups = array();
+    foreach ($this->data as $name => $field) {
+      if (!in_array($field[Field::GROUP], $groups))
+        $groups[] = $field[Field::GROUP];
+    }
+    return $groups;
+  }
+  
+  function getGroupFields($a_group_name) {
+    $group_name = $a_group_name;
+    if (!is_array($group_name)) {
+      $group_name = array($group_name);
+    }
+    $group = array();
+    foreach ($this->data as $name => $field) {
+      if (in_array($field[Field::GROUP], $group_name)) {
+        $group[] = $field;
+      }
+    }
+    return $group;
+  }
+  
   function getAttribute($name) {
     return $this->data[$name];
   }

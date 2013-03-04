@@ -8,13 +8,15 @@ class SqlBuilder {
 
   function insertField($field) {
     return sprintf(
-      'INSERT INTO %s(group_id, weight, type, name, label) VALUES("%s", %d, "%s", "%s", "%s")',
+      'INSERT INTO %s(group_id, weight, type, name, label, prefix, suffix) VALUES("%s", %d, "%s", "%s", "%s", "%s", "%s")',
       SqlBuilder::TYPE_TABLE,
       $field[Field::GROUP],
       $field[Field::WEIGHT],
       $field[Field::TYPE],
       $field[Field::NAME],
-      $field[Field::LABEL]
+      $field[Field::LABEL],
+      $field[Field::PREFIX],
+      $field[Field::SUFFIX]
     );
   }
   
@@ -62,6 +64,17 @@ class SqlBuilder {
       SqlBuilder::TYPE_TABLE,
       SqlBuilder::VALUE_TABLE,
       $a_field_name,
+      $object_id
+    );
+  }
+  
+  function selectAllFields($object_id) {
+    return sprintf(
+      'SELECT *, ft.id as ft_id
+       FROM %s ft, %s fv
+       WHERE ft.id = fv.field_type_id AND fv.object_id = "%s"',
+      SqlBuilder::TYPE_TABLE,
+      SqlBuilder::VALUE_TABLE,
       $object_id
     );
   }
