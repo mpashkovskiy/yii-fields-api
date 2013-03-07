@@ -98,7 +98,7 @@ class FieldsObject {
     $fieldsDao = new FieldsDao();
     foreach ($this->values as $key => $value) {
       if (trim($value) == '' || $value == Field::VALUE_NOT_SET)
-        continue;
+        $value = '';
       
       $sql = $sqlBuilder->insertFieldValue($this->object_id, $this->data[$key]['id'], $value);
       $fieldsDao->execute($sql);

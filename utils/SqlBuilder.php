@@ -105,7 +105,7 @@ class SqlBuilder {
   
   function selectAllowedValues($a_field_id) {
     return sprintf(
-      'SELECT value FROM %s WHERE field_type_id = %d ORDER BY value',
+      'SELECT value FROM %s WHERE field_type_id = %d',
       SqlBuilder::ALLOWED_VALUE_TABLE,
       $a_field_id
     );

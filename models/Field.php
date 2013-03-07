@@ -13,8 +13,6 @@ class Field {
   const VALUES      = 'values';
   const IS_REQUIRED = 'is_required';
   
-  const SELECT_TYPE = 'select';
-  
   const VALUE_NOT_SET = 'Значение не задано';
   
   private $values;
