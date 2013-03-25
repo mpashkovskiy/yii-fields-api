@@ -15,9 +15,6 @@ class FieldsObject {
   }
   
   function addField($data) {
-    if ($data[Field::VALUE] == NULL) {
-      $data[Field::VALUE] = Field::VALUE_NOT_SET;
-    }
     $this->data[$data[Field::NAME]] = $data;
   }
   
@@ -97,8 +94,7 @@ class FieldsObject {
     $sqlBuilder = new SqlBuilder();
     $fieldsDao = new FieldsDao();
     foreach ($this->values as $key => $value) {
-      if (trim($value) == '' || $value == Field::VALUE_NOT_SET)
-        $value = '';
+      $value = trim($value);
       
       $sql = $sqlBuilder->insertFieldValue($this->object_id, $this->data[$key]['id'], $value);
       $fieldsDao->execute($sql);

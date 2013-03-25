@@ -8,26 +8,26 @@ class SqlBuilder {
 
   function insertField($field) {
     return sprintf(
-      'INSERT INTO %s(group_id, weight, type, name, label, prefix, suffix) VALUES("%s", %d, "%s", "%s", "%s", "%s", "%s")',
+      'INSERT INTO %s(group_id, weight, type, is_required, name, label, prefix, suffix) 
+               VALUES("%s",     %d,     "%s", %d,          "%s", "%s",  "%s",   "%s")',
       SqlBuilder::TYPE_TABLE,
-      $field[Field::GROUP],
-      $field[Field::WEIGHT],
-      $field[Field::TYPE],
-      $field[Field::NAME],
-      $field[Field::LABEL],
-      $field[Field::PREFIX],
-      $field[Field::SUFFIX]
+      $field['group_id'],
+      $field['weight'],
+      $field['type'],
+      $field['is_required'],
+      $field['name'],
+      $field['label'],
+      $field['prefix'],
+      $field['suffix']
     );
   }
   
   function getFieldId($field) {
     return sprintf(
-      'SELECT id FROM %s WHERE %s = "%s" AND %s = "%s"',
+      'SELECT id FROM %s WHERE %s = "%s"',
       SqlBuilder::TYPE_TABLE,
-      Field::GROUP,
-      $field[Field::GROUP],
-      Field::NAME,
-      $field[Field::NAME]
+      'name',
+      $field['name']
     );
   }
   
@@ -39,12 +39,13 @@ class SqlBuilder {
     );
   }*/
   
-  function insertAllowedValue($field_type_id, $value) {
+  function insertAllowedValue($field_type_id, $value, $is_default) {
     return sprintf(
-      'INSERT INTO %s(field_type_id, value) VALUES(%s, "%s")', 
+      'INSERT INTO %s(field_type_id, value, is_default) VALUES(%s, "%s", %d)', 
       SqlBuilder::ALLOWED_VALUE_TABLE,
       $field_type_id,
-      $value
+      $value,
+      $is_default
     );
   }
   
@@ -111,14 +112,16 @@ class SqlBuilder {
     );
   }
   
-  function insertEmptyValues($a_object_id) {
+  function insertEmptyValues($a_object_id, $a_default_values) {
+    $values_part = array();
+    foreach ($a_default_values as $field_id => $value) {
+      $values_part[] = sprintf('(%d,           %d,        "%s",  NOW())',
+                                 $a_object_id, $field_id, $value);
+    }
+    $values_part = implode(', ', $values_part); 
     return sprintf(
-      'INSERT INTO %s(object_id, field_type_id)
-       SELECT %d, id
-       FROM %s',
-      SqlBuilder::VALUE_TABLE,
-      $a_object_id,
-      SqlBuilder::TYPE_TABLE
+      'INSERT INTO %s(object_id, field_type_id, value, changed_at) VALUES' . $values_part,
+      SqlBuilder::VALUE_TABLE
     );
   }
   
@@ -127,7 +130,27 @@ class SqlBuilder {
       'UPDATE %s SET value = "%s" WHERE object_id = "%s" AND field_type_id = %d',
       SqlBuilder::VALUE_TABLE,
       $a_value,
-      $a_object_id, $a_field_id
+      $a_object_id,
+      $a_field_id
+    );
+  }
+  
+  function deleteAllValues($a_object_id) {
+    return sprintf(
+      'DELETE FROM %s WHERE object_id = "%s"',
+      SqlBuilder::VALUE_TABLE,
+      $a_object_id
+    );
+  }
+  
+  function selectFieldNames() {
+    return sprintf('SELECT id FROM %s', SqlBuilder::TYPE_TABLE);
+  }
+  
+  function selectDefaultValues() {
+    return sprintf(
+      'SELECT field_type_id, value FROM %s WHERE is_default = 1',
+      SqlBuilder::ALLOWED_VALUE_TABLE
     );
   }
   

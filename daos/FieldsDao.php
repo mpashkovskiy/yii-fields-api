@@ -23,9 +23,10 @@ class FieldsDao extends CommonDao {
     $sql = $this->sql_builder->getFieldId($field);
     $field_type_id = $this->getScalar($sql);
     
-    if (isset($field[Field::VALUES])) {
-      foreach ($field[Field::VALUES] as $value) {
-        $sql = $this->sql_builder->insertAllowedValue($field_type_id, $value);
+    if (isset($field['values'])) {
+      foreach ($field['values'] as $value) {
+        $is_default = ($value == $field['default_value']) ? 1 : 0;
+        $sql = $this->sql_builder->insertAllowedValue($field_type_id, $value, $is_default);
         $this->execute($sql);
       }
     }
@@ -34,7 +35,22 @@ class FieldsDao extends CommonDao {
   }
   
   function initFields($a_object_id) {
-    $sql = $this->sql_builder->insertEmptyValues($a_object_id);
+    // get all fields
+    $sql = $this->sql_builder->selectFieldNames();
+    $rows = $this->getAll($sql);
+    $values = array();
+    foreach ($rows as $row) {
+      $values[$row['id']] = '';
+    }
+    
+    // set defaults!
+    $sql = $this->sql_builder->selectDefaultValues();
+    $rows = $this->getAll($sql);
+    foreach ($rows as $row) {
+      $values[$row['field_type_id']] = $row['value'];
+    }
+    
+    $sql = $this->sql_builder->insertEmptyValues($a_object_id, $values);
     $this->execute($sql);
   }
   
@@ -49,9 +65,10 @@ class FieldsDao extends CommonDao {
       $row['id'] = $row['ft_id'];
       unset($row['ft_id']);
     }
-    if (in_array($row[Field::TYPE], array('select', 'checkbox-group'))) {
+    if (in_array($row['type'], array('select', 'checkbox-group'))) {
       $sql = $this->sql_builder->selectAllowedValues($row['id']);
-      $row[Field::VALUES] = $this->getColumn($sql);
+      var_dump($sql);
+      $row['values'] = $this->getColumn($sql);
     }
     return new Field($row);
   }
@@ -66,9 +83,9 @@ class FieldsDao extends CommonDao {
       $row['id'] = $row['ft_id'];
       unset($row['ft_id']);
       
-      if (in_array($row[Field::TYPE], array('select', 'checkbox-group'))) {
+      if (in_array($row['type'], array('select', 'checkbox-group'))) {
         $sql = $this->sql_builder->selectAllowedValues($row['id']);
-        $row[Field::VALUES] = $this->getColumn($sql);
+        $row['values'] = $this->getColumn($sql);
       }
       $field_object->addField($row);
     }
@@ -84,15 +101,16 @@ class FieldsDao extends CommonDao {
     $field_object = new FieldsObject();
     $field_object->object_id = $a_object_id;
     $sql = $this->sql_builder->selectFieldsByNames($a_object_id, $names);
+    
     $dataReader = $this->getReader($sql);
     while(($row = $dataReader->read()) !== false) {
       unset($row['id']);
       $row['id'] = $row['ft_id'];
       unset($row['ft_id']);
       
-      if (in_array($row[Field::TYPE], array('select', 'checkbox-group'))) {
+      if (in_array($row['type'], array('select', 'checkbox-group'))) {
         $sql = $this->sql_builder->selectAllowedValues($row['id']);
-        $row[Field::VALUES] = $this->getColumn($sql);
+        $row['values'] = $this->getColumn($sql);
       }
       $field_object->addField($row);
     }
@@ -114,9 +132,9 @@ class FieldsDao extends CommonDao {
       $row['id'] = $row['ft_id'];
       unset($row['ft_id']);
       
-      if (in_array($row[Field::TYPE], array('select', 'checkbox-group'))) {
+      if (in_array($row['type'], array('select', 'checkbox-group'))) {
         $sql = $this->sql_builder->selectAllowedValues($row['id']);
-        $row[Field::VALUES] = $this->getColumn($sql);
+        $row['values'] = $this->getColumn($sql);
       }
       $field_object->addField($row);
     }
@@ -132,6 +150,11 @@ class FieldsDao extends CommonDao {
     $field_type_id = $this->getScalar($sql);
     
     $sql = $this->sql_builder->insertFieldValue($a_object_id, $field_type_id, $a_field_value);
+    $this->execute($sql);
+  }
+  
+  function deleteAllFor($a_object_id) {
+    $sql = $this->sql_builder->deleteAllValues($a_object_id);
     $this->execute($sql);
   }
 
