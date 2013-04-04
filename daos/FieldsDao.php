@@ -41,6 +41,9 @@ class FieldsDao extends CommonDao {
     $values = array();
     foreach ($rows as $row) {
       $values[$row['id']] = '';
+      if ($row['name'] == 'city') {
+        $values[$row['id']] = 'Санкт-Петербург';
+      }
     }
     
     // set defaults!
@@ -52,25 +55,6 @@ class FieldsDao extends CommonDao {
     
     $sql = $this->sql_builder->insertEmptyValues($a_object_id, $values);
     $this->execute($sql);
-  }
-  
-  function getField($a_object_id, $a_field_name) {
-    if ($a_object_id == NULL) {
-      $sql = $this->sql_builder->selectField($a_field_name);
-      $row = $this->getFirst($sql);
-    } else {
-      $sql = $this->sql_builder->selectFieldWithValues($a_object_id, $a_field_name);
-      $row = $this->getFirst($sql);
-      unset($row['id']);
-      $row['id'] = $row['ft_id'];
-      unset($row['ft_id']);
-    }
-    if (in_array($row['type'], array('select', 'checkbox-group'))) {
-      $sql = $this->sql_builder->selectAllowedValues($row['id']);
-      var_dump($sql);
-      $row['values'] = $this->getColumn($sql);
-    }
-    return new Field($row);
   }
   
   function getAllFields($a_object_id) {
@@ -90,6 +74,25 @@ class FieldsDao extends CommonDao {
       $field_object->addField($row);
     }
     return $field_object;
+  }
+  
+  function getField($a_object_id, $a_field_name) {
+    if ($a_object_id == NULL) {
+      $sql = $this->sql_builder->selectField($a_field_name);
+      $row = $this->getFirst($sql);
+    } else {
+      $sql = $this->sql_builder->selectFieldWithValues($a_object_id, $a_field_name);
+      $row = $this->getFirst($sql);
+      unset($row['id']);
+      $row['id'] = $row['ft_id'];
+      unset($row['ft_id']);
+    }
+    if (in_array($row['type'], array('select', 'checkbox-group'))) {
+      $sql = $this->sql_builder->selectAllowedValues($row['id']);
+      //var_dump($sql);
+      $row['values'] = $this->getColumn($sql);
+    }
+    return new Field($row);
   }
   
   function getFieldsByNames($a_object_id, $a_names) {
@@ -155,6 +158,11 @@ class FieldsDao extends CommonDao {
   
   function deleteAllFor($a_object_id) {
     $sql = $this->sql_builder->deleteAllValues($a_object_id);
+    $this->execute($sql);
+  }
+  
+  function deleteEmptyValues($a_object_id) {
+    $sql = $this->sql_builder->deleteEmptyValues($a_object_id);
     $this->execute($sql);
   }
 

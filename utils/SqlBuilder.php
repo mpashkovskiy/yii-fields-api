@@ -143,8 +143,16 @@ class SqlBuilder {
     );
   }
   
+  function deleteEmptyValues($a_object_id) {
+    return sprintf(
+      'DELETE FROM %s WHERE object_id = "%s" && value = ""',
+      SqlBuilder::VALUE_TABLE,
+      $a_object_id
+    );
+  }
+  
   function selectFieldNames() {
-    return sprintf('SELECT id FROM %s', SqlBuilder::TYPE_TABLE);
+    return sprintf('SELECT id, name FROM %s', SqlBuilder::TYPE_TABLE);
   }
   
   function selectDefaultValues() {
