@@ -45,6 +45,10 @@ class FieldsObject {
     return $this->data[$name];
   }
   
+  function removeAttribute($name) {
+    unset($this->data[$name]);
+  }
+  
   function getAttributes() {
     return $this->data;
   }

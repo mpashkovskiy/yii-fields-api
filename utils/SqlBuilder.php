@@ -127,7 +127,7 @@ class SqlBuilder {
   
   function insertFieldValue($a_object_id, $a_field_id, $a_value) {
     return sprintf(
-      'UPDATE %s SET value = "%s" WHERE object_id = "%s" AND field_type_id = %d',
+      'UPDATE %s SET value = "%s", changed_at = NOW() WHERE object_id = "%s" AND field_type_id = %d',
       SqlBuilder::VALUE_TABLE,
       $a_value,
       $a_object_id,
