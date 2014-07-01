@@ -22,7 +22,7 @@ class Field {
   }
   
   function get($key) {
-      if (array_key_exists($key,$this->values))
+    if (array_key_exists($key,$this->values))
           return $this->values[$key];
   }
   
