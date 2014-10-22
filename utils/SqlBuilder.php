@@ -96,7 +96,7 @@ class SqlBuilder {
     return sprintf(
       'SELECT *, ft.id as ft_id
        FROM %s ft, %s fv
-       WHERE ft.group_id IN("%s") AND ft.id = fv.field_type_id AND fv.object_id = "%s" ORDER BY ft.weight ASC',
+       WHERE ft.group_id IN("%s") AND ft.id = fv.field_type_id AND fv.object_id = "%s"',
       SqlBuilder::TYPE_TABLE,
       SqlBuilder::VALUE_TABLE,
       implode('", "', $group_ids),
